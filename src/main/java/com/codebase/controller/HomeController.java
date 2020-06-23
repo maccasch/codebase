@@ -10,7 +10,7 @@ public class HomeController {
 
 	@GetMapping(value = "")
 	public String home() {
-		return ("<h1>Welcome</h1>");
+		return ("<h1>Well done!</h1>");
 	}
 
 }
