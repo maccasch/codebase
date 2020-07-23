@@ -1,0 +1,11 @@
+sudo: required
+services:
+  - docker
+script:
+  - docker build -t maccasch/codebase:latest .
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push maccasch/codebase:latest
+branches:
+  only:
+  - master
