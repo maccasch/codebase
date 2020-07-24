@@ -21,11 +21,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-/**
- * Utility Class for common Java Web Token operations
- *
- * Created by Mary Ellen Bowman
- */
 @Component
 public class JwtProvider{
 
