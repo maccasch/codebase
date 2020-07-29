@@ -14,14 +14,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException;
 
 import com.codebase.domain.User;
+import com.codebase.exception.CustomException;
+import com.codebase.exception.ErrorConstants;
 import com.codebase.service.UserService;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
@@ -30,7 +32,7 @@ public class UserController {
     @PostMapping("/signin")
 	public String login(@RequestBody @Validated LoginDto loginDto) {
        return userService.signin(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(()->
-               new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+		new CustomException(ErrorConstants.USER.LOGIN_FAILED, HttpStatus.FORBIDDEN));
     }
 
     @PostMapping("/signup")
@@ -38,7 +40,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
 	public User signup(@RequestBody @Validated LoginDto loginDto) {
         return userService.signup(loginDto.getUsername(), loginDto.getPassword(), loginDto.getFirstName(),
-                loginDto.getLastName()).orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST,"User already exists"));
+				loginDto.getLastName()).orElseThrow(() -> new CustomException(ErrorConstants.USER.ALREADY_EXIST, HttpStatus.BAD_REQUEST));
     }
 
     @GetMapping
