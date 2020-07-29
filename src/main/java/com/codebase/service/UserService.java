@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -15,9 +16,12 @@ import org.springframework.stereotype.Service;
 
 import com.codebase.domain.Role;
 import com.codebase.domain.User;
+import com.codebase.exception.CustomException;
+import com.codebase.exception.ErrorConstants;
 import com.codebase.repository.RoleRepository;
 import com.codebase.repository.UserRepository;
 import com.codebase.security.JwtProvider;
+import com.codebase.web.LoginDto;
 
 @Service
 public class UserService {
@@ -79,13 +83,14 @@ public class UserService {
 	 *            last name
 	 * @return Optional of user, empty if the user already exists.
 	 */
-	public Optional<User> signup(String username, String password, String firstName, String lastName) {
+	public Optional<User> signup(LoginDto loginDto) {
 		LOGGER.info("New user attempting to sign in");
 		Optional<User> user = Optional.empty();
-		if (!userRepository.findByUsername(username).isPresent()) {
-			Optional<Role> role = roleRepository.findByRoleName("ROLE_USER");
+		if (!userRepository.findByUsername(loginDto.getUsername()).isPresent()) {
+			Role role = roleRepository.findByRoleName(loginDto.getRole()).orElseThrow(() -> new CustomException(ErrorConstants.ROLE.NOT_PROVIDED, HttpStatus.BAD_REQUEST));
 			user = Optional.of(
-					userRepository.save(User.builder().username(username).password(passwordEncoder.encode(password)).roles(Arrays.asList(role.get())).firstName(firstName).lastName(lastName).build()));
+					userRepository.save(User.builder().username(loginDto.getUsername()).password(passwordEncoder.encode(loginDto.getPassword())).roles(Arrays.asList(role))
+							.firstName(loginDto.getFirstName()).lastName(loginDto.getLastName()).build()));
 		}
 		return user;
 	}
